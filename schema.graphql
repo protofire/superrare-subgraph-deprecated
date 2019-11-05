@@ -1,0 +1,41 @@
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  isCreator: Boolean
+
+  bids: [BidLog!]! @derivedFrom(field: "bidder")
+  created: [Item!]! @derivedFrom(field: "creator")
+  items: [Item!]! @derivedFrom(field: "owner")
+}
+
+type BidLog @entity {
+  id: ID!
+  amount: BigInt!
+  bidder: Account!
+  item: Item!
+  timestamp: BigInt!
+}
+
+type Item @entity {
+  id: ID!
+  creator: Account!
+  owner: Account!
+  salePrice: BigInt
+  tokenId: BigInt!
+  uri: String!
+
+  currentBid: BidLog
+
+  created: BigInt!
+  modified: BigInt
+  removed: BigInt
+}
+
+type SaleLog @entity {
+  id: ID!
+  amount: BigInt!
+  buyer: Account!
+  item: Item!
+  seller: Account!
+  timestamp: BigInt!
+}

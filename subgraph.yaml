@@ -1,0 +1,41 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: SupeRare
+    network: mainnet
+    source:
+      abi: SupeRare
+      address: '0x41a322b28d0ff354040e2cbc676f0320d8c8850d'
+      startBlock: 5364090
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Account
+        - BidLog
+        - Item
+        - SaleLog
+      abis:
+        - name: SupeRare
+          file: ./abis/SupeRare.json
+      eventHandlers:
+        - event: WhitelistCreator(indexed address)
+          handler: handleWhitelistCreator
+        - event: Bid(indexed address,indexed uint256,indexed uint256)
+          handler: handleBid
+        - event: AcceptBid(indexed address,indexed address,uint256,indexed uint256)
+          handler: handleAcceptBid
+        - event: CancelBid(indexed address,indexed uint256,indexed uint256)
+          handler: handleCancelBid
+        - event: Sold(indexed address,indexed address,uint256,indexed uint256)
+          handler: handleSold
+        - event: SalePriceSet(indexed uint256,indexed uint256)
+          handler: handleSalePriceSet
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+      file: ./src/mapping.ts

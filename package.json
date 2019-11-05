@@ -1,0 +1,17 @@
+{
+  "name": "superrare-subgraph",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/superrare",
+    "create-local": "graph create --node http://localhost:8020/ protofire/superrare",
+    "remove-local": "graph remove --node http://localhost:8020/ protofire/superrare",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 protofire/superrare"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.16.0",
+    "@graphprotocol/graph-ts": "0.16.0"
+  }
+}

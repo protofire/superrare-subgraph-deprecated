@@ -1,4 +1,4 @@
-import { Address, BigInt, log } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, JSONValueKind, ipfs, json, log } from '@graphprotocol/graph-ts'
 
 import {
   SupeRare,
@@ -100,11 +100,11 @@ export function handleTransfer(event: TransferEvent): void {
     item.creator = account.id
     item.owner = item.creator
     item.tokenId = event.params._tokenId
-    item.uri = SupeRare.bind(event.address).tokenURI(event.params._tokenId)
+    item.descriptorUri = SupeRare.bind(event.address).tokenURI(event.params._tokenId)
 
     item.created = event.block.timestamp
 
-    item.save()
+    readItemData(item as Item).save()
   } else {
     let item = Item.load(tokenId)
 
@@ -143,4 +143,64 @@ function getOrCreateAccount(address: Address, persist: boolean = true): Account 
   }
 
   return account as Account
+}
+
+function readItemData(item: Item): Item {
+  let hash = getIpfsHash(item.descriptorUri)
+
+  if (hash != null) {
+    let raw = ipfs.cat(hash)
+
+    item.descriptorHash = hash
+
+    if (raw != null) {
+      let value = json.fromBytes(raw as Bytes)
+
+      if (value.kind == JSONValueKind.OBJECT) {
+        let data = value.toObject()
+
+        if (data.isSet('name')) {
+          item.name = data.get('name').toString()
+        }
+
+        if (data.isSet('description')) {
+          item.description = data.get('description').toString()
+        }
+
+        if (data.isSet('yearCreated')) {
+          item.yearCreated = data.get('yearCreated').toString()
+        }
+
+        if (data.isSet('createdBy')) {
+          item.createdBy = data.get('createdBy').toString()
+        }
+
+        if (data.isSet('image')) {
+          item.imageUri = data.get('image').toString()
+          item.imageHash = getIpfsHash(item.imageUri)
+        }
+
+        if (data.isSet('tags')) {
+          item.tags = data
+            .get('tags')
+            .toArray()
+            .map<string>(t => t.toString())
+        }
+      }
+    }
+  }
+
+  return item
+}
+
+function getIpfsHash(uri: string | null): string | null {
+  if (uri != null) {
+    let hash = uri.split('/').pop()
+
+    if (hash != null && hash.startsWith('Qm')) {
+      return hash
+    }
+  }
+
+  return null
 }

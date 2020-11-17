@@ -12,15 +12,16 @@ dataSources:
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
+      file: ./src/mapping.ts
       language: wasm/assemblyscript
+      abis:
+        - name: SupeRare
+          file: ./abis/SupeRare.json
       entities:
         - Account
         - BidLog
         - Item
         - SaleLog
-      abis:
-        - name: SupeRare
-          file: ./abis/SupeRare.json
       eventHandlers:
         - event: WhitelistCreator(indexed address)
           handler: handleWhitelistCreator
@@ -38,4 +39,3 @@ dataSources:
           handler: handleTransfer
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
-      file: ./src/mapping.ts

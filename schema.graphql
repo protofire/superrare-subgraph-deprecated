@@ -22,7 +22,16 @@ type Item @entity {
   owner: Account!
   salePrice: BigInt
   tokenId: BigInt!
-  uri: String!
+
+  descriptorUri: String!
+  descriptorHash: String!
+  name: String
+  description: String
+  yearCreated: String
+  createdBy: String
+  tags: [String!]
+  imageUri: String
+  imageHash: String
 
   currentBid: BidLog
 

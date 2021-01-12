@@ -70,6 +70,18 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
+"@protofire/subgraph-prettier-config@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@protofire/subgraph-prettier-config/-/subgraph-prettier-config-0.1.1.tgz#da616048f8d77f27446ac0298d8fdd9bbc4eb16a"
+  integrity sha512-XJNXRYotEcywkCMsUMsbpzbC5xZUwQGwdk2NS+NNMhwNhm24i3SSO2dqJgnWYscmBGwpVZJTGVYK6f8g/Gn16g==
+
+"@protofire/subgraph-toolkit@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@protofire/subgraph-toolkit/-/subgraph-toolkit-0.1.1.tgz#bf0cf73caf1e23f3cb473be499bd242cb10aadc2"
+  integrity sha512-TWbjnVtdUeeAiDJ7319FwUlvSx+MXVD+Go3LEOHBR5y1yUy/rs1mSBDv7w7/eR/6EUtiRdSJDEpbW6ZlHCq1Fw==
+  dependencies:
+    "@protofire/subgraph-prettier-config" "^0.1.1"
+
 "@types/connect@^3.4.32":
   version "3.4.32"
   resolved "https://registry.yarnpkg.com/@types/connect/-/connect-3.4.32.tgz#aa0e9616b9435ccad02bc52b5b454ffc2c70ba28"

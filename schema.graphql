@@ -1,30 +1,24 @@
 type Account @entity {
   id: ID!
   address: Bytes!
-  isCreator: Boolean
+  isWhitelisted: Boolean
 
   bids: [BidLog!]! @derivedFrom(field: "bidder")
-  created: [Item!]! @derivedFrom(field: "creator")
-  items: [Item!]! @derivedFrom(field: "owner")
+  created: [Artwork!]! @derivedFrom(field: "creator")
+  items: [Artwork!]! @derivedFrom(field: "owner")
 }
 
-type BidLog @entity {
+type Artwork @entity {
   id: ID!
-  amount: BigInt!
-  bidder: Account!
-  item: Item!
-  timestamp: BigInt!
-}
-
-type Item @entity {
-  id: ID!
+  tokenId: BigInt!
   creator: Account!
   owner: Account!
-  salePrice: BigInt
-  tokenId: BigInt!
+  version: ArtworkMetadata!
 
+  # Metadata
   descriptorUri: String!
-  descriptorHash: String!
+  descriptorHash: String
+
   name: String
   description: String
   yearCreated: String
@@ -34,17 +28,31 @@ type Item @entity {
   imageHash: String
 
   currentBid: BidLog
+  salePrice: BigInt
 
   created: BigInt!
   modified: BigInt
   removed: BigInt
 }
 
+enum ArtworkMetadata {
+  V1
+  V2
+}
+
+type BidLog @entity {
+  id: ID!
+  amount: BigInt!
+  bidder: Account!
+  item: Artwork!
+  timestamp: BigInt!
+}
+
 type SaleLog @entity {
   id: ID!
   amount: BigInt!
   buyer: Account!
-  item: Item!
+  item: Artwork!
   seller: Account!
   timestamp: BigInt!
 }

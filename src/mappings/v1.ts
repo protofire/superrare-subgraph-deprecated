@@ -1,4 +1,5 @@
-import { Address, BigInt, Bytes, JSONValueKind, ipfs, json, log } from '@graphprotocol/graph-ts'
+import { Bytes, JSONValueKind, ipfs, json, log } from '@graphprotocol/graph-ts'
+import { integer, ADDRESS_ZERO } from '@protofire/subgraph-toolkit'
 
 import {
   SupeRare,
@@ -10,22 +11,23 @@ import {
   SalePriceSet as SalePriceSetEvent,
   Transfer as TransferEvent,
   Approval as ApprovalEvent,
-} from '../generated/SupeRare/SupeRare'
+} from '../../generated/SuperRare/V1/SupeRare'
 
-import { Account, BidLog, Item, SaleLog } from '../generated/schema'
+import { Artwork, BidLog, SaleLog } from '../../generated/schema'
 
-const GENESIS_ADDRESS = '0x0000000000000000000000000000000000000000'
+import { getOrCreateAccount } from '../entities/account'
+import { getIpfsHash } from '../helpers'
 
 export function handleWhitelistCreator(event: WhitelistCreatorEvent): void {
   let account = getOrCreateAccount(event.params._creator, false)
-  account.isCreator = true
+  account.isWhitelisted = true
 
   account.save()
 }
 
 export function handleBid(event: BidEvent): void {
   let tokenId = event.params._tokenId.toString()
-  let item = Item.load(tokenId)
+  let item = Artwork.load(tokenId)
 
   if (item != null) {
     let bidder = getOrCreateAccount(event.params._bidder)
@@ -56,7 +58,7 @@ export function handleCancelBid(event: CancelBidEvent): void {
 
 export function handleSold(event: SoldEvent): void {
   let tokenId = event.params._tokenId.toString()
-  let item = Item.load(event.params._tokenId.toString())
+  let item = Artwork.load(event.params._tokenId.toString())
 
   if (item != null) {
     let buyer = getOrCreateAccount(event.params._buyer)
@@ -74,14 +76,14 @@ export function handleSold(event: SoldEvent): void {
 
     // Transfer item to buyer
     item.owner = buyer.id
-    item.salePrice = BigInt.fromI32(0)
+    item.salePrice = integer.ZERO
 
     item.save()
   }
 }
 
 export function handleSalePriceSet(event: SalePriceSetEvent): void {
-  let item = Item.load(event.params._tokenId.toString())
+  let item = Artwork.load(event.params._tokenId.toString())
 
   if (item != null) {
     item.salePrice = event.params._price
@@ -94,9 +96,10 @@ export function handleTransfer(event: TransferEvent): void {
   let account = getOrCreateAccount(event.params._to)
   let tokenId = event.params._tokenId.toString()
 
-  if (event.params._from.toHex() == GENESIS_ADDRESS) {
+  if (event.params._from.toHex() == ADDRESS_ZERO) {
     // Mint token
-    let item = new Item(tokenId)
+    let item = new Artwork('V1-' + tokenId)
+    item.version = 'V1'
     item.creator = account.id
     item.owner = item.creator
     item.tokenId = event.params._tokenId
@@ -104,12 +107,12 @@ export function handleTransfer(event: TransferEvent): void {
 
     item.created = event.block.timestamp
 
-    readItemData(item as Item).save()
+    readArtworkMetadata(item as Artwork).save()
   } else {
-    let item = Item.load(tokenId)
+    let item = Artwork.load(tokenId)
 
     if (item != null) {
-      if (event.params._to.toHex() == GENESIS_ADDRESS) {
+      if (event.params._to.toHex() == ADDRESS_ZERO) {
         // Burn token
         item.removed = event.block.timestamp
       } else {
@@ -120,7 +123,7 @@ export function handleTransfer(event: TransferEvent): void {
 
       item.save()
     } else {
-      log.warning('Item #{} not exists', [tokenId])
+      log.warning('Artwork #{} not exists', [tokenId])
     }
   }
 }
@@ -129,23 +132,7 @@ export function handleApproval(event: ApprovalEvent): void {
   // TODO
 }
 
-function getOrCreateAccount(address: Address, persist: boolean = true): Account {
-  let accountAddress = address.toHex()
-  let account = Account.load(accountAddress)
-
-  if (account == null) {
-    account = new Account(accountAddress)
-    account.address = address
-  }
-
-  if (persist) {
-    account.save()
-  }
-
-  return account as Account
-}
-
-function readItemData(item: Item): Item {
+function readArtworkMetadata(item: Artwork): Artwork {
   let hash = getIpfsHash(item.descriptorUri)
 
   if (hash != null) {
@@ -191,16 +178,4 @@ function readItemData(item: Item): Item {
   }
 
   return item
-}
-
-function getIpfsHash(uri: string | null): string | null {
-  if (uri != null) {
-    let hash = uri.split('/').pop()
-
-    if (hash != null && hash.startsWith('Qm')) {
-      return hash
-    }
-  }
-
-  return null
 }

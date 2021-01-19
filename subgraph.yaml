@@ -2,8 +2,8 @@ specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum/contract
-    name: SupeRare
+  - name: SuperRare/V1
+    kind: ethereum/contract
     network: mainnet
     source:
       abi: SupeRare
@@ -12,7 +12,7 @@ dataSources:
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
-      file: ./src/mapping.ts
+      file: ./src/mappings/v1.ts
       language: wasm/assemblyscript
       abis:
         - name: SupeRare
@@ -39,3 +39,34 @@ dataSources:
           handler: handleTransfer
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
+  - name: SuperRare/V2
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: SuperRareV2
+      address: '0xb932a70a57673d89f4acffbe830e8ed7f75fb9e0'
+      startBlock: 8486734
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      file: ./src/mappings/v2.ts
+      language: wasm/assemblyscript
+      abis:
+        - name: SuperRareV2
+          file: ./abis/SuperRareV2.json
+      entities:
+        - Account
+        - BidLog
+        - Item
+        - SaleLog
+      eventHandlers:
+        - event: AddToWhitelist(indexed address)
+          handler: handleAddToWhitelist
+        - event: RemoveFromWhitelist(indexed address)
+          handler: handleRemoveFromWhitelist
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokenURIUpdated(indexed uint256,string)
+          handler: handleTokenURIUpdated
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer

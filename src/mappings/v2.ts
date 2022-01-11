@@ -61,7 +61,7 @@ export function handleTransfer(event: TransferEvent): void {
 
     artwork.save()
   } else {
-    let artwork = Artwork.load(tokenId)
+    let artwork = Artwork.load('V2-' + tokenId)
 
     if (artwork != null) {
       if (isBurn) {

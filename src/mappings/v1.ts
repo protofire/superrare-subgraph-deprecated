@@ -109,7 +109,7 @@ export function handleTransfer(event: TransferEvent): void {
 
     readArtworkMetadata(item as Artwork).save()
   } else {
-    let item = Artwork.load(tokenId)
+    let item = Artwork.load('V1-' + tokenId)
 
     if (item != null) {
       if (event.params._to.toHex() == ADDRESS_ZERO) {
